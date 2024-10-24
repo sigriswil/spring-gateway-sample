@@ -16,9 +16,9 @@ import reactor.util.context.Context;
 import java.util.UUID;
 
 @Component
-public class FirstGatewayFilterFactory implements GlobalFilter, Ordered {
+public class FirstGatewayFilter implements GlobalFilter, Ordered {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FirstGatewayFilterFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FirstGatewayFilter.class);
 
     @PostConstruct
     void init() {
