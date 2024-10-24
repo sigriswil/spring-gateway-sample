@@ -9,5 +9,4 @@ spring:
           predicates:
             - Path=/**
           filters:
-            - First
             - Second

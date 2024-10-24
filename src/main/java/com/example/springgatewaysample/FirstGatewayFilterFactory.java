@@ -5,16 +5,18 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
-import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import java.util.UUID;
 
 @Component
-public class FirstGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
+public class FirstGatewayFilterFactory implements GlobalFilter, Ordered {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FirstGatewayFilterFactory.class);
 
@@ -28,12 +30,16 @@ public class FirstGatewayFilterFactory extends AbstractGatewayFilterFactory<Obje
     }
 
     @Override
-    public GatewayFilter apply(Object config) {
-        return new OrderedGatewayFilter((exchange, chain) -> {
-            MDC.put("transactionId", UUID.randomUUID().toString());
-            return chain.filter(exchange)
-                    .doFinally(signalType -> LOGGER.info("FirstGatewayFilterFactory.doFinally, MDC: {}", MDC.getCopyOfContextMap()))
-                    .contextWrite(Context.of("MDC", MDC.getCopyOfContextMap()));
-        }, 10);
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        MDC.put("transactionId", UUID.randomUUID().toString());
+        LOGGER.info("transactionId created. MDC: {}", MDC.getCopyOfContextMap());
+        return chain.filter(exchange)
+                .doFinally(signalType -> LOGGER.info("doFinally, MDC: {}", MDC.getCopyOfContextMap()))
+                .contextWrite(Context.of("MDC", MDC.getCopyOfContextMap()));
+    }
+
+    @Override
+    public int getOrder() {
+        return 10;
     }
 }

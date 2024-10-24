@@ -16,7 +16,7 @@ public class SecondGatewayFilterFactory extends AbstractGatewayFilterFactory<Obj
     @Override
     public GatewayFilter apply(Object config) {
         return new OrderedGatewayFilter((exchange, chain) -> {
-            LOGGER.info("SecondGatewayFilterFactory start, MDC: {}", MDC.getCopyOfContextMap());
+            LOGGER.info("MDC: {}", MDC.getCopyOfContextMap());
             throw new RuntimeException();
 //            return chain.filter(exchange);
         }, 20);
